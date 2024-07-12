@@ -3,7 +3,7 @@
 
 int main()
 {
-	int i = 0;
+	            int i = 0;
 	std::cout << "SFML is working!" << std::endl;
 	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
 	sf::CircleShape shape(100.f);
