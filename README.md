@@ -21,6 +21,6 @@
       Run <code>make</code> to build the project
     </li>
     <li>
-      Run <code>./GAME</code>.
+      Run <code>./GAME</code>
     </li>
 </ol>
