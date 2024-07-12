@@ -6,9 +6,7 @@ project(GAME)
 find_package(SFML 2.5.1 COMPONENTS graphics window system REQUIRED)
 
 # Add your source files
-set(SOURCES
-    src/main.cpp
-)
+set(SOURCES src/main.cpp)
 
 # Add an executable target
 add_executable(${PROJECT_NAME} ${SOURCES})
