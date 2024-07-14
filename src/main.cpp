@@ -1,14 +1,15 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <limits>
+#include <string>
 
 int main()
 {
 	// read in the config
 	auto fin = std::ifstream("../src/config.txt"); // this is relative path from build folder
-	if (fin.fail()) {
+	if (fin.fail())
+	{
 		std::cout << "error opening file" << std::endl;
 		return -1;
 	}
@@ -23,14 +24,24 @@ int main()
 
 	// read shapes
 	auto name = std::string();
-	
-	while (fin >> word) {
-		if (word == "Circle") {
-			std::cout << "It's a circle" << std::endl;
-			break;
-		} else if (word == "Rectangle") {
-			std::cout << "It's a Rectangle" << std::endl;
-			break;
+	float x, y, vx, vy;
+	int r, g, b;
+	float radius;
+	float w, h;
+
+	while (fin >> word)
+	{
+		if (word == "Circle")
+		{
+			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
+			std::cout << "this circle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
+			          << " " << r << " " << g << " " << b << " " << radius << std::endl;
+		}
+		else if (word == "Rectangle")
+		{
+			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
+			std::cout << "this rectangle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
+			          << " " << r << " " << g << " " << b << " " << w << " " << h << std::endl;
 		}
 	}
 
