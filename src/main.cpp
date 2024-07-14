@@ -14,14 +14,16 @@ int main()
 	}
 
 	// read window properties
-	std::string word;
+	auto word = std::string();
 	fin >> word;
-	unsigned int win_width = 100;
-	unsigned int win_height = 100;
+	unsigned int win_width = 1920; // default width of window
+	unsigned int win_height = 1080; // default height of window
 	fin >> win_width;
 	fin >> win_height;
 
 	// read shapes
+	auto name = std::string();
+	
 	while (fin >> word) {
 		if (word == "Circle") {
 			std::cout << "It's a circle" << std::endl;
@@ -33,7 +35,7 @@ int main()
 	}
 
 	// render shapes
-	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "SFML works!");
+	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "Bouncing Shapes");
 	sf::CircleShape shape(100.f);
 	shape.setFillColor(sf::Color::Green);
 
