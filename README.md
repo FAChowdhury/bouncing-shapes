@@ -27,7 +27,7 @@
 <h2>Interpreting src/config.txt</h2>
 <h3>src/config.txt will take the following format:</h3>
 <code>Window Width Height
-Shape(string) Name(string) X_Position(float) Y_Position(float) X_Velocity(float) Y_Velocity(float) R(int) G(int) B(int) Properties(flaot)
+Shape(string) Name(string) X_Position(float) Y_Position(float) X_Velocity(float) Y_Velocity(float) R(int) G(int) B(int) Properties(float)
 </code>
 <p>Shape can either be a circle or a rectangle.</p>
 <p>The properties will be the following.</p>
