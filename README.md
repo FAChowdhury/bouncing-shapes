@@ -32,7 +32,7 @@ Shape(string) Name(string) X_Position(float) Y_Position(float) X_Velocity(float)
 <p>Shape can either be a circle or a rectangle.</p>
 <p>The properties will be the following.</p>
 <p>For a circle:</p>
-<code>Radius</code>
+<code>Radius(float)</code>
 <p>For a rectangle:</p>
-<code>Width Height</code>
+<code>Width(float) Height(float)</code>
 
