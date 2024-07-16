@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 
-namespace Shape {
-	class Shape {
-	public:
+namespace Shape
+{
+	class Shape
+	{
+	 public:
 		std::string name_;
 		float x_;
 		float y_;
@@ -17,17 +19,42 @@ namespace Shape {
 		int G_;
 		int B_;
 
-		Shape(std::string name, float x, float y, float vx, float vy, int R, int G, int B) : 
-		name_{name},
-		x_{x},
-		y_{y},
-		vx_{vx},
-		vy_{vy},
-		R_{R},
-		G_{G},
-		B_{B} {}
+		Shape() = default;
+
+		Shape(std::string name, float x, float y, float vx, float vy, int R, int G, int B)
+		: name_{name}
+		, x_{x}
+		, y_{y}
+		, vx_{vx}
+		, vy_{vy}
+		, R_{R}
+		, G_{G}
+		, B_{B}
+		{}
 	};
-}
+
+	class Circle : Shape
+	{
+	 public:
+		float radius_;
+
+		Circle(float radius)
+		: radius_{radius}
+		{}
+	};
+
+	class Rectangle : Shape
+	{
+	 public:
+		float width_;
+		float height_;
+
+		Rectangle(float width, float height)
+		: width_{width}
+		, height_{height}
+		{}
+	};
+} // namespace Shape
 
 int main()
 {
@@ -48,11 +75,13 @@ int main()
 	float w, h;
 
 	while (fin >> word)
-	{	
-		if (word == "Window") {
+	{
+		if (word == "Window")
+		{
 			fin >> win_width >> win_height;
 			std::cout << "window is " << win_width << " X " << win_height << std::endl;
-		} else if (word == "Circle")
+		}
+		else if (word == "Circle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
 			std::cout << "this circle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
