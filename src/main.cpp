@@ -48,6 +48,7 @@ namespace Shape
 		{}
 
 		virtual std::vector<float> getProperties() const = 0;
+		// virtual void setSF(std::shared_ptr<sf::Shape> shape) = 0;
 		virtual ~Shape() = default;
 	};
 
@@ -55,6 +56,7 @@ namespace Shape
 	{
 	 public:
 		float radius_;
+		std::shared_ptr<sf::Shape> sf_ = nullptr;
 
 		Circle(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, float radius)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
@@ -65,6 +67,10 @@ namespace Shape
 		{
 			return std::vector<float>{radius_};
 		}
+
+		// void setSF(std::shared_ptr<sf::Shape>& shape) override {
+		// 	sf_ = shape;
+		// }
 	};
 
 	class Rectangle : public Shape
@@ -72,6 +78,7 @@ namespace Shape
 	 public:
 		float width_;
 		float height_;
+		std::shared_ptr<sf::Shape> sf_ = nullptr;
 
 		Rectangle(std::string type,
 		          std::string name,
@@ -93,6 +100,11 @@ namespace Shape
 		{
 			return std::vector<float>{width_, height_};
 		}
+
+		// void setSF(std::shared_ptr<sf::Shape>& shape) override
+		// {
+		// 	sf_ = shape;
+		// }
 	};
 } // namespace Shape
 
@@ -160,9 +172,9 @@ int main()
 	}
 
 	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "Bouncing Shapes");
+	window.setFramerateLimit(60);
 	sf::CircleShape shape(100.f);
 	shape.setFillColor(sf::Color::Green);
-	window.setFramerateLimit(60);
 
 	while (window.isOpen())
 	{
