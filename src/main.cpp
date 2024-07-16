@@ -10,6 +10,7 @@ namespace Shape
 	class Shape
 	{
 	 public:
+	 	std::string type_;
 		std::string name_;
 		float x_;
 		float y_;
@@ -21,8 +22,9 @@ namespace Shape
 
 		Shape() = default;
 
-		Shape(std::string name, float x, float y, float vx, float vy, int R, int G, int B)
-		: name_{name}
+		Shape(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B)
+		: type_{type}
+		, name_{name}
 		, x_{x}
 		, y_{y}
 		, vx_{vx}
@@ -31,6 +33,9 @@ namespace Shape
 		, G_{G}
 		, B_{B}
 		{}
+
+		virtual std::vector<float> getProperties() const = 0;
+		virtual ~Shape() {}
 	};
 
 	class Circle : Shape
@@ -41,6 +46,11 @@ namespace Shape
 		Circle(float radius)
 		: radius_{radius}
 		{}
+
+		std::vector<float> getProperties() const override 
+		{
+			return std::vector<float>{radius_};
+		}
 	};
 
 	class Rectangle : Shape
@@ -53,6 +63,11 @@ namespace Shape
 		: width_{width}
 		, height_{height}
 		{}
+
+		std::vector<float> getProperties() const override 
+		{
+			return std::vector<float>{width_, height_};
+		}
 	};
 } // namespace Shape
 
