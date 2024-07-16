@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace Shape
 	class Shape
 	{
 	 public:
-	 	std::string type_;
+		std::string type_;
 		std::string name_;
 		float x_;
 		float y_;
@@ -34,37 +35,61 @@ namespace Shape
 		, B_{B}
 		{}
 
+		Shape(const Shape& other)
+		: type_{other.type_}
+		, name_{other.name_}
+		, x_{other.x_}
+		, y_{other.y_}
+		, vx_{other.vx_}
+		, vy_{other.vy_}
+		, R_{other.R_}
+		, G_{other.G_}
+		, B_{other.B_}
+		{}
+
 		virtual std::vector<float> getProperties() const = 0;
-		virtual ~Shape() {}
+		virtual ~Shape() = default;
 	};
 
-	class Circle : Shape
+	class Circle : public Shape
 	{
 	 public:
 		float radius_;
 
-		Circle(float radius)
-		: radius_{radius}
+		Circle(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, float radius)
+		: Shape(type, name, x, y, vx, vy, R, G, B)
+		, radius_{radius}
 		{}
 
-		std::vector<float> getProperties() const override 
+		std::vector<float> getProperties() const override
 		{
 			return std::vector<float>{radius_};
 		}
 	};
 
-	class Rectangle : Shape
+	class Rectangle : public Shape
 	{
 	 public:
 		float width_;
 		float height_;
 
-		Rectangle(float width, float height)
-		: width_{width}
+		Rectangle(std::string type,
+		          std::string name,
+		          float x,
+		          float y,
+		          float vx,
+		          float vy,
+		          int R,
+		          int G,
+		          int B,
+		          float width,
+		          float height)
+		: Shape(type, name, x, y, vx, vy, R, G, B)
+		, width_{width}
 		, height_{height}
 		{}
 
-		std::vector<float> getProperties() const override 
+		std::vector<float> getProperties() const override
 		{
 			return std::vector<float>{width_, height_};
 		}
@@ -89,6 +114,7 @@ int main()
 	float radius;
 	float w, h;
 
+	auto shapes = std::vector<std::shared_ptr<Shape::Shape>>{}; // store the shapes from configuration
 	while (fin >> word)
 	{
 		if (word == "Window")
@@ -99,14 +125,21 @@ int main()
 		else if (word == "Circle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
-			std::cout << "this circle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
-			          << " " << r << " " << g << " " << b << " " << radius << std::endl;
+			// std::cout << "this circle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
+			//           << " " << r << " " << g << " " << b << " " << radius << std::endl;
+			auto circle =
+			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius);
+			shapes.push_back(circle);
 		}
 		else if (word == "Rectangle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
-			std::cout << "this rectangle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
-			          << " " << r << " " << g << " " << b << " " << w << " " << h << std::endl;
+			// std::cout << "this rectangle is called " << name << " and has: " << x << " " << y << " " << vx << " " <<
+			// vy
+			//           << " " << r << " " << g << " " << b << " " << w << " " << h << std::endl;
+			auto rectangle =
+			    std::make_shared<Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h);
+			shapes.push_back(rectangle);
 		}
 	}
 
