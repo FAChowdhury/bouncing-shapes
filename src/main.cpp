@@ -48,7 +48,6 @@ namespace Shape
 		{}
 
 		virtual std::vector<float> getProperties() const = 0;
-		// virtual void setSF(std::shared_ptr<sf::Shape> shape) = 0;
 		virtual ~Shape() = default;
 	};
 
@@ -67,10 +66,6 @@ namespace Shape
 		{
 			return std::vector<float>{radius_};
 		}
-
-		// void setSF(std::shared_ptr<sf::Shape>& shape) override {
-		// 	sf_ = shape;
-		// }
 	};
 
 	class Rectangle : public Shape
@@ -100,11 +95,6 @@ namespace Shape
 		{
 			return std::vector<float>{width_, height_};
 		}
-
-		// void setSF(std::shared_ptr<sf::Shape>& shape) override
-		// {
-		// 	sf_ = shape;
-		// }
 	};
 } // namespace Shape
 
@@ -137,8 +127,6 @@ int main()
 		else if (word == "Circle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
-			// std::cout << "this circle is called " << name << " and has: " << x << " " << y << " " << vx << " " << vy
-			//           << " " << r << " " << g << " " << b << " " << radius << std::endl;
 			auto circle =
 			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius);
 			shapes.push_back(circle);
@@ -146,9 +134,6 @@ int main()
 		else if (word == "Rectangle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
-			// std::cout << "this rectangle is called " << name << " and has: " << x << " " << y << " " << vx << " " <<
-			// vy
-			//           << " " << r << " " << g << " " << b << " " << w << " " << h << std::endl;
 			auto rectangle =
 			    std::make_shared<Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h);
 			shapes.push_back(rectangle);
@@ -157,16 +142,25 @@ int main()
 
 	// create sfml shapes
 	auto sf_shapes = std::vector<std::shared_ptr<sf::Shape>>();
-	for (const auto& shape : shapes) {
-		if (shape->type_ == "Circle") {
+	for (const auto& shape : shapes)
+	{
+		if (shape->type_ == "Circle")
+		{
 			auto sfcircle = std::make_shared<sf::CircleShape>(shape->getProperties()[0]);
 			sfcircle->setPosition(shape->x_, shape->y_);
-			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_), static_cast<uint8_t>(shape->G_), static_cast<uint8_t>(shape->B_)));
+			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
+			                                 static_cast<uint8_t>(shape->G_),
+			                                 static_cast<uint8_t>(shape->B_)));
 			sf_shapes.push_back(sfcircle);
-		} else {
-			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(shape->getProperties()[0], shape->getProperties()[1]));
+		}
+		else
+		{
+			auto sfrectangle =
+			    std::make_shared<sf::RectangleShape>(sf::Vector2f(shape->getProperties()[0], shape->getProperties()[1]));
 			sfrectangle->setPosition(shape->x_, shape->y_);
-			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_), static_cast<uint8_t>(shape->G_), static_cast<uint8_t>(shape->B_)));
+			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
+			                                    static_cast<uint8_t>(shape->G_),
+			                                    static_cast<uint8_t>(shape->B_)));
 			sf_shapes.push_back(sfrectangle);
 		}
 	}
@@ -182,7 +176,8 @@ int main()
 				window.close();
 		}
 
-		for (std::size_t i = 0; i < sf_shapes.size(); ++i) {
+		for (std::size_t i = 0; i < sf_shapes.size(); ++i)
+		{
 			auto shape = shapes[i];
 			auto sf_shape = sf_shapes[i];
 			sf_shape->move(shape->vx_, shape->vy_);
@@ -190,8 +185,8 @@ int main()
 
 		window.clear();
 
-		// draw shapes
-		for (const auto& shape : sf_shapes) {
+		for (const auto& shape : sf_shapes)
+		{
 			window.draw(*shape);
 		}
 
