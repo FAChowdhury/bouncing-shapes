@@ -143,10 +143,26 @@ int main()
 		}
 	}
 
-	// render shapes
+	// create sfml shapes
+	auto sf_shapes = std::vector<std::shared_ptr<sf::Shape>>();
+	for (const auto& shape : shapes) {
+		if (shape->type_ == "Circle") {
+			auto sfcircle = std::make_shared<sf::CircleShape>(shape->getProperties()[0]);
+			sfcircle->setPosition(shape->x_, shape->y_);
+			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_), static_cast<uint8_t>(shape->G_), static_cast<uint8_t>(shape->B_)));
+			sf_shapes.push_back(sfcircle);
+		} else {
+			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(shape->getProperties()[0], shape->getProperties()[1]));
+			sfrectangle->setPosition(shape->x_, shape->y_);
+			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_), static_cast<uint8_t>(shape->G_), static_cast<uint8_t>(shape->B_)));
+			sf_shapes.push_back(sfrectangle);
+		}
+	}
+
 	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "Bouncing Shapes");
 	sf::CircleShape shape(100.f);
 	shape.setFillColor(sf::Color::Green);
+	window.setFramerateLimit(60);
 
 	while (window.isOpen())
 	{
