@@ -3,6 +3,31 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <vector>
+
+namespace Shape {
+	class Shape {
+	public:
+		std::string name_;
+		float x_;
+		float y_;
+		float vx_;
+		float vy_;
+		int R_;
+		int G_;
+		int B_;
+
+		Shape(std::string name, float x, float y, float vx, float vy, int R, int G, int B) : 
+		name_{name},
+		x_{x},
+		y_{y},
+		vx_{vx},
+		vy_{vy},
+		R_{R},
+		G_{G},
+		B_{B} {}
+	};
+}
 
 int main()
 {
