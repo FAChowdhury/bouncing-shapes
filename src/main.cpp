@@ -173,9 +173,6 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "Bouncing Shapes");
 	window.setFramerateLimit(60);
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
-
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -185,8 +182,19 @@ int main()
 				window.close();
 		}
 
+		for (std::size_t i = 0; i < sf_shapes.size(); ++i) {
+			auto shape = shapes[i];
+			auto sf_shape = sf_shapes[i];
+			sf_shape->move(shape->vx_, shape->vy_);
+		}
+
 		window.clear();
-		window.draw(shape);
+
+		// draw shapes
+		for (const auto& shape : sf_shapes) {
+			window.draw(*shape);
+		}
+
 		window.display();
 	}
 
