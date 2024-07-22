@@ -146,21 +146,26 @@ int main()
 	{
 		if (shape->type_ == "Circle")
 		{
-			auto sfcircle = std::make_shared<sf::CircleShape>(shape->getProperties()[0]);
+			auto radius = shape->getProperties()[0];
+			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
 			sfcircle->setPosition(shape->x_, shape->y_);
 			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
 			                                 static_cast<uint8_t>(shape->G_),
 			                                 static_cast<uint8_t>(shape->B_)));
+			sfcircle->setOrigin(radius, radius);
 			sf_shapes.push_back(sfcircle);
 		}
 		else
 		{
+			auto width = shape->getProperties()[0];
+			auto height = shape->getProperties()[1];
 			auto sfrectangle =
-			    std::make_shared<sf::RectangleShape>(sf::Vector2f(shape->getProperties()[0], shape->getProperties()[1]));
+			    std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
 			sfrectangle->setPosition(shape->x_, shape->y_);
 			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
 			                                    static_cast<uint8_t>(shape->G_),
 			                                    static_cast<uint8_t>(shape->B_)));
+			sfrectangle->setOrigin(width / 2, height / 2);
 			sf_shapes.push_back(sfrectangle);
 		}
 	}
