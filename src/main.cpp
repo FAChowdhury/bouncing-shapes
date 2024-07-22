@@ -159,8 +159,7 @@ int main()
 		{
 			auto width = shape->getProperties()[0];
 			auto height = shape->getProperties()[1];
-			auto sfrectangle =
-			    std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
+			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
 			sfrectangle->setPosition(shape->x_, shape->y_);
 			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
 			                                    static_cast<uint8_t>(shape->G_),
@@ -185,6 +184,49 @@ int main()
 		{
 			auto shape = shapes[i];
 			auto sf_shape = sf_shapes[i];
+
+			// if shape is hitting edge, reverse vx_ and vy_
+			auto x = sf_shape->getPosition().x;
+			auto y = sf_shape->getPosition().y;
+			if (shape->type_ == "Circle")
+			{
+				if (x + shape->getProperties()[0] >= static_cast<float>(win_width))
+				{
+					shape->vx_ *= -1;
+				}
+				if (x - shape->getProperties()[0] <= 0)
+				{
+					shape->vx_ *= -1;
+				}
+				if (y + shape->getProperties()[0] >= static_cast<float>(win_height))
+				{
+					shape->vy_ *= -1;
+				}
+				if (y - shape->getProperties()[0] <= 0)
+				{
+					shape->vy_ *= -1;
+				}
+			}
+			else
+			{
+				if (x + (shape->getProperties()[0] / 2) >= static_cast<float>(win_width))
+				{
+					shape->vx_ *= -1;
+				}
+				if (x - (shape->getProperties()[0] / 2) <= 0)
+				{
+					shape->vx_ *= -1;
+				}
+				if (y + (shape->getProperties()[1] / 2) >= static_cast<float>(win_height))
+				{
+					shape->vy_ *= -1;
+				}
+				if (y - (shape->getProperties()[1] / 2) <= 0)
+				{
+					shape->vy_ *= -1;
+				}
+			}
+
 			sf_shape->move(shape->vx_, shape->vy_);
 		}
 
