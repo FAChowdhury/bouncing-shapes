@@ -1,4 +1,8 @@
 <h1>Bouncing Shapes</h1>
+
+![Uploading 2024-07-26 17-29-06 - Trim.gif…]()
+
+
 <h2>Requirements</h2>
 <ul>
   <li>clang++</li>
