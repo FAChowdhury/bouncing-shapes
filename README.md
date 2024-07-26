@@ -1,12 +1,5 @@
 <h1>Bouncing Shapes</h1>
 <img src="./demo/2024-07-26 17-29-06 - Trim.gif">
-<h2>Requirements</h2>
-<ul>
-  <li>clang++</li>
-  <li>clang-format</li>
-  <li>cmake</li>
-  <li>SFML</li>
-</ul>
 <h2>Goal</h2>
 <p>
   Create a program in C++ that animates shapes bouncing around a window using SFML. The shapes are configured from <code>./src/config.txt</code>.
@@ -14,6 +7,13 @@
 
   **THIS IS A WIP.**
 </p>
+<h2>Requirements</h2>
+<ul>
+  <li>clang++</li>
+  <li>clang-format</li>
+  <li>cmake</li>
+  <li>SFML</li>
+</ul>
 <h2>Linting using clang-format</h2>
 <code>find . -iname "*.h" -o -iname "*.cpp" | xargs clang-format -i</code>
 <h2>Building the project</h2>
