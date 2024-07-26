@@ -7,6 +7,13 @@
   <li>cmake</li>
   <li>SFML</li>
 </ul>
+<h2>Goal</h2>
+<p>
+  Create a program in C++ that animates shapes bouncing around a window using SFML. The shapes are configured from <code>./src/config.txt</code>.
+  Users are able to use the ImGui interface to change the properties of shapes dynamically while the programming is running.
+
+  **THIS IS A WIP.**
+</p>
 <h2>Linting using clang-format</h2>
 <code>find . -iname "*.h" -o -iname "*.cpp" | xargs clang-format -i</code>
 <h2>Building the project</h2>
