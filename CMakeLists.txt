@@ -23,12 +23,8 @@ set(IMGUI_SOURCES
 # Create a static library for ImGui
 add_library(imgui STATIC ${IMGUI_SOURCES})
 
-# # Apply no-warning flags specifically for ImGui
-# target_compile_options(imgui PRIVATE
-#     -w  # Disable all warnings for ImGui files
-# )
-
 # Apply global compiler flags for the rest of the project
+# -Wold-style-cast disabled due to errors occuring in ImGui
 add_compile_options(
   -Wall
   -Wextra
