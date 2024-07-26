@@ -1,3 +1,5 @@
+#include "imgui-SFML.h"
+#include "imgui.h"
 #include <SFML/Graphics.hpp>
 #include <fstream>
 #include <iostream>
@@ -170,15 +172,25 @@ int main()
 	}
 
 	sf::RenderWindow window(sf::VideoMode(win_width, win_height), "Bouncing Shapes");
+	bool initSuccess = ImGui::SFML::Init(window);
+	if (!initSuccess)
+	{
+		std::cerr << "Failed to initialize ImGui-SFML" << std::endl;
+		return -1;
+	}
+
 	window.setFramerateLimit(60);
+	sf::Clock deltaClock;
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(window, event);
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
+		ImGui::SFML::Update(window, deltaClock.restart());
 
 		for (std::size_t i = 0; i < sf_shapes.size(); ++i)
 		{
@@ -230,15 +242,22 @@ int main()
 			sf_shape->move(shape->vx_, shape->vy_);
 		}
 
+		// ImGui UI Start
+		ImGui::Begin("Window title");
+		ImGui::Text("Window text!");
+		ImGui::End();
+		// ImGui UI End
+
 		window.clear();
 
 		for (const auto& shape : sf_shapes)
 		{
 			window.draw(*shape);
 		}
-
+		ImGui::SFML::Render(window);
 		window.display();
 	}
 
+	ImGui::SFML::Shutdown();
 	return 0;
 }

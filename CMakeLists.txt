@@ -2,8 +2,33 @@ cmake_minimum_required(VERSION 3.0)
 
 project(GAME)
 
-# helpful compiler flags for gcc/clang
-# the descriptions for these flags can be found on the GNU Compiler Collection's webpage.
+###############################################################################
+
+# Find SFML
+find_package(SFML 2.5.1 COMPONENTS graphics window system REQUIRED)
+
+# Find OpenGL
+find_package(OpenGL REQUIRED)
+
+# Include ImGui files
+set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/imgui")
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui-SFML.cpp
+)
+
+# Create a static library for ImGui
+add_library(imgui STATIC ${IMGUI_SOURCES})
+
+# # Apply no-warning flags specifically for ImGui
+# target_compile_options(imgui PRIVATE
+#     -w  # Disable all warnings for ImGui files
+# )
+
+# Apply global compiler flags for the rest of the project
 add_compile_options(
   -Wall
   -Wextra
@@ -19,26 +44,30 @@ add_compile_options(
   -Wnon-virtual-dtor
   -Woverloaded-virtual
   -Wdeprecated-copy-dtor
-  -Wold-style-cast
+  # -Wold-style-cast
   -Wzero-as-null-pointer-constant
   -Wsuggest-override
   -fstack-protector-strong
 )
 
-###############################################################################
-
-# Find SFML
-find_package(SFML 2.5.1 COMPONENTS graphics window system REQUIRED)
-
 # Add your source files
 set(SOURCES src/main.cpp)
 
-# Add an executable target
+# Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Link SFML libraries to your executable
+# Link the ImGui and ImGui-SFML libraries to your executable
 target_link_libraries(${PROJECT_NAME} 
+    imgui
     sfml-graphics
     sfml-window
     sfml-system
+    OpenGL::GL
 )
+
+# Set SFML include directories
+target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCLUDE_DIR})
+
+# Set ImGui include directories
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_DIR})
+
