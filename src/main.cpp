@@ -15,6 +15,7 @@ namespace Shape
 	 public:
 		std::string type_;
 		std::string name_;
+		std::shared_ptr<sf::Text> text_;
 		float x_;
 		float y_;
 		float vx_;
@@ -129,6 +130,13 @@ int main()
 	float radius;
 	float w, h;
 
+	sf::Font font;
+	if (!font.loadFromFile("../font/font.otf"))
+	{
+		std::cerr << "Error loading font\n";
+		return -1;
+	}
+
 	auto names = std::vector<std::string>{};
 	auto shapes = std::map<std::string, std::shared_ptr<Shape::Shape>>{};
 	while (fin >> word)
@@ -141,33 +149,67 @@ int main()
 		else if (word == "Circle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
+			// make circle class
 			auto circle =
 			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius);
 			auto radius = circle->getProperties()[0];
+			// make sfcircle
 			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
 			sfcircle->setPosition(circle->x_, circle->y_);
 			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(circle->R_),
 			                                 static_cast<uint8_t>(circle->G_),
 			                                 static_cast<uint8_t>(circle->B_)));
 			sfcircle->setOrigin(radius, radius);
+			// add sfcircle to circle class
 			circle->sf_ = sfcircle;
+
+			// create text for circle
+			auto text = std::make_shared<sf::Text>();
+			text->setFont(font); // Set the font
+			text->setString(circle->name_); // Set the text
+			text->setCharacterSize(18); // Set the character size
+			text->setFillColor(sf::Color::White); // Set the text color
+			// Center the text on the shape
+			sf::FloatRect textRect = text->getLocalBounds();
+			text->setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+			text->setPosition(circle->x_, circle->y_);
+			// add text to circle class
+			circle->text_ = text;
+
 			shapes.insert(std::make_pair(circle->name_, circle));
 			names.push_back(circle->name_);
 		}
 		else if (word == "Rectangle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
+			// make rectangle class
 			auto rectangle =
 			    std::make_shared<Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h);
 			auto width = rectangle->getProperties()[0];
 			auto height = rectangle->getProperties()[1];
+			// make sfrectangle
 			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
 			sfrectangle->setPosition(rectangle->x_, rectangle->y_);
 			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(rectangle->R_),
 			                                    static_cast<uint8_t>(rectangle->G_),
 			                                    static_cast<uint8_t>(rectangle->B_)));
 			sfrectangle->setOrigin(width / 2, height / 2);
+			// add sfrectangle to rectangle class
 			rectangle->sf_ = sfrectangle;
+
+			// create text for circle
+			auto text = std::make_shared<sf::Text>();
+			text->setFont(font); // Set the font
+			text->setString(rectangle->name_); // Set the text
+			text->setCharacterSize(18); // Set the character size
+			text->setFillColor(sf::Color::White); // Set the text color
+			// Center the text on the shape
+			sf::FloatRect textRect = text->getLocalBounds();
+			text->setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+			text->setPosition(rectangle->x_, rectangle->y_);
+			// add text to circle class
+			rectangle->text_ = text;
+
 			shapes.insert(std::make_pair(rectangle->name_, rectangle));
 			names.push_back(rectangle->name_);
 		}
@@ -207,6 +249,29 @@ int main()
 				window.close();
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
+		// ImGui UI Start
+		ImGui::Begin("Bouncing Shapes!");
+		if (ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size())))
+		{
+			// Item selection changed
+			printf("Selected: %s\n", names_cstr[static_cast<std::size_t>(current_item)]);
+		}
+
+		if (ImGui::ColorEdit3("Shape Color", color))
+		{
+			// Update the shape color based on the selected color
+			shapeColor.r = static_cast<sf::Uint8>(color[0] * 255);
+			shapeColor.g = static_cast<sf::Uint8>(color[1] * 255);
+			shapeColor.b = static_cast<sf::Uint8>(color[2] * 255);
+			// shape.setFillColor(shapeColor);
+			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+			if (it != shapes.end())
+			{
+				it->second->getShape()->setFillColor(shapeColor);
+			}
+		}
+		ImGui::End();
+		// ImGui UI End
 
 		for (const auto& shape : shapes)
 		{
@@ -237,30 +302,8 @@ int main()
 			}
 
 			shape.second->getShape()->move(shape.second->vx_, shape.second->vy_);
+			shape.second->text_->move(shape.second->vx_, shape.second->vy_);
 		}
-		// ImGui UI Start
-		ImGui::Begin("Bouncing Shapes!");
-		if (ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size())))
-		{
-			// Item selection changed
-			printf("Selected: %s\n", names_cstr[static_cast<std::size_t>(current_item)]);
-		}
-
-		if (ImGui::ColorEdit3("Shape Color", color))
-		{
-			// Update the shape color based on the selected color
-			shapeColor.r = static_cast<sf::Uint8>(color[0] * 255);
-			shapeColor.g = static_cast<sf::Uint8>(color[1] * 255);
-			shapeColor.b = static_cast<sf::Uint8>(color[2] * 255);
-			// shape.setFillColor(shapeColor);
-			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
-			if (it != shapes.end())
-			{
-				it->second->getShape()->setFillColor(shapeColor);
-			}
-		}
-		ImGui::End();
-		// ImGui UI End
 
 		// update shapes start
 		// update shapes end
@@ -270,6 +313,7 @@ int main()
 		for (const auto& shape : shapes)
 		{
 			window.draw(*(shape.second->getShape()));
+			window.draw(*(shape.second->text_));
 		}
 		ImGui::SFML::Render(window);
 		window.display();
