@@ -13,7 +13,7 @@ namespace Shape
 	class Shape
 	{
 	 public:
-	 	std::string type_;
+		std::string type_;
 		std::shared_ptr<sf::Text> text_;
 		float vx_;
 		float vy_;
@@ -46,11 +46,7 @@ namespace Shape
 	 public:
 		std::shared_ptr<sf::CircleShape> sf_;
 
-		Circle(std::shared_ptr<sf::Text> text,
-		       float vx,
-		       float vy,
-		       std::shared_ptr<sf::CircleShape>& sf,
-		       bool draw)
+		Circle(std::shared_ptr<sf::Text> text, float vx, float vy, std::shared_ptr<sf::CircleShape>& sf, bool draw)
 		: Shape(std::string("Circle"), text, vx, vy, draw)
 		, sf_{sf}
 		{}
@@ -71,11 +67,7 @@ namespace Shape
 	 public:
 		std::shared_ptr<sf::RectangleShape> sf_;
 
-		Rectangle(std::shared_ptr<sf::Text> text,
-		          float vx,
-		          float vy,
-		          std::shared_ptr<sf::RectangleShape>& sf,
-		          bool draw)
+		Rectangle(std::shared_ptr<sf::Text> text, float vx, float vy, std::shared_ptr<sf::RectangleShape>& sf, bool draw)
 		: Shape(std::string("Rectangle"), text, vx, vy, draw)
 		, sf_{sf}
 		{}
@@ -147,8 +139,7 @@ int main()
 			text->setPosition(x, y);
 
 			// make circle class
-			auto circle = std::make_shared<
-			    Shape::Circle>(text, vx, vy, sfcircle, true);
+			auto circle = std::make_shared<Shape::Circle>(text, vx, vy, sfcircle, true);
 
 			shapes.insert(std::make_pair(name, circle));
 			names.push_back(name);
@@ -243,7 +234,7 @@ int main()
 		}
 
 		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
-		if (it != shapes.end()) 
+		if (it != shapes.end())
 		{
 			color[0] = static_cast<float>(it->second->getShape()->getFillColor().r) / 255.0f;
 			color[1] = static_cast<float>(it->second->getShape()->getFillColor().g) / 255.0f;
@@ -265,8 +256,8 @@ int main()
 
 		// shape scale
 		float scale = 1.0f;
-		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)])); 
-		if (it != shapes.end()) 
+		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+		if (it != shapes.end())
 		{
 			scale = it->second->getShape()->getScale().x;
 		}
@@ -308,16 +299,20 @@ int main()
 			auto y = shape.second->getShape()->getPosition().y;
 			if (shape.second->type_ == "Circle")
 			{
-				if ((x + shape.second->getProperties()[0] >= static_cast<float>(win_width)) or (x - shape.second->getProperties()[0] <= 0))
+				if ((x + shape.second->getProperties()[0] >= static_cast<float>(win_width))
+				    or (x - shape.second->getProperties()[0] <= 0))
 					shape.second->vx_ *= -1;
-				if ((y + shape.second->getProperties()[0] >= static_cast<float>(win_height)) or (y - shape.second->getProperties()[0] <= 0))
+				if ((y + shape.second->getProperties()[0] >= static_cast<float>(win_height))
+				    or (y - shape.second->getProperties()[0] <= 0))
 					shape.second->vy_ *= -1;
 			}
 			else
 			{
-				if ((x + (shape.second->getProperties()[0] / 2) >= static_cast<float>(win_width)) or (x - (shape.second->getProperties()[0] / 2) <= 0))
+				if ((x + (shape.second->getProperties()[0] / 2) >= static_cast<float>(win_width))
+				    or (x - (shape.second->getProperties()[0] / 2) <= 0))
 					shape.second->vx_ *= -1;
-				if ((y + (shape.second->getProperties()[1] / 2) >= static_cast<float>(win_height)) or (y - (shape.second->getProperties()[1] / 2) <= 0))
+				if ((y + (shape.second->getProperties()[1] / 2) >= static_cast<float>(win_height))
+				    or (y - (shape.second->getProperties()[1] / 2) <= 0))
 					shape.second->vy_ *= -1;
 			}
 
