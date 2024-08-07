@@ -50,6 +50,7 @@ namespace Shape
 		{}
 
 		virtual std::vector<float> getProperties() const = 0;
+		virtual std::shared_ptr<sf::Shape> getShape() = 0;
 		virtual ~Shape() = default;
 	};
 
@@ -57,7 +58,7 @@ namespace Shape
 	{
 	 public:
 		float radius_;
-		std::shared_ptr<sf::Shape> sf_ = nullptr;
+		std::shared_ptr<sf::CircleShape> sf_;
 
 		Circle(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, float radius)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
@@ -68,6 +69,11 @@ namespace Shape
 		{
 			return std::vector<float>{radius_};
 		}
+
+		std::shared_ptr<sf::Shape> getShape() override
+		{
+			return sf_;
+		}
 	};
 
 	class Rectangle : public Shape
@@ -75,7 +81,7 @@ namespace Shape
 	 public:
 		float width_;
 		float height_;
-		std::shared_ptr<sf::Shape> sf_ = nullptr;
+		std::shared_ptr<sf::RectangleShape> sf_;
 
 		Rectangle(std::string type,
 		          std::string name,
@@ -96,6 +102,11 @@ namespace Shape
 		std::vector<float> getProperties() const override
 		{
 			return std::vector<float>{width_, height_};
+		}
+
+		std::shared_ptr<sf::Shape> getShape() override
+		{
+			return sf_;
 		}
 	};
 } // namespace Shape
@@ -131,6 +142,14 @@ int main()
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
 			auto circle =
 			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius);
+			auto radius = circle->getProperties()[0];
+			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
+			sfcircle->setPosition(circle->x_, circle->y_);
+			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(circle->R_),
+			                                 static_cast<uint8_t>(circle->G_),
+			                                 static_cast<uint8_t>(circle->B_)));
+			sfcircle->setOrigin(radius, radius);
+			circle->sf_ = sfcircle;
 			shapes.push_back(circle);
 		}
 		else if (word == "Rectangle")
@@ -138,36 +157,16 @@ int main()
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
 			auto rectangle =
 			    std::make_shared<Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h);
-			shapes.push_back(rectangle);
-		}
-	}
-
-	// create sfml shapes
-	auto sf_shapes = std::vector<std::shared_ptr<sf::Shape>>();
-	for (const auto& shape : shapes)
-	{
-		if (shape->type_ == "Circle")
-		{
-			auto radius = shape->getProperties()[0];
-			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
-			sfcircle->setPosition(shape->x_, shape->y_);
-			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
-			                                 static_cast<uint8_t>(shape->G_),
-			                                 static_cast<uint8_t>(shape->B_)));
-			sfcircle->setOrigin(radius, radius);
-			sf_shapes.push_back(sfcircle);
-		}
-		else
-		{
-			auto width = shape->getProperties()[0];
-			auto height = shape->getProperties()[1];
+			auto width = rectangle->getProperties()[0];
+			auto height = rectangle->getProperties()[1];
 			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
-			sfrectangle->setPosition(shape->x_, shape->y_);
-			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(shape->R_),
-			                                    static_cast<uint8_t>(shape->G_),
-			                                    static_cast<uint8_t>(shape->B_)));
+			sfrectangle->setPosition(rectangle->x_, rectangle->y_);
+			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(rectangle->R_),
+			                                    static_cast<uint8_t>(rectangle->G_),
+			                                    static_cast<uint8_t>(rectangle->B_)));
 			sfrectangle->setOrigin(width / 2, height / 2);
-			sf_shapes.push_back(sfrectangle);
+			rectangle->sf_ = sfrectangle;
+			shapes.push_back(rectangle);
 		}
 	}
 
@@ -192,67 +191,48 @@ int main()
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
 
-		for (std::size_t i = 0; i < sf_shapes.size(); ++i)
+		for (const auto& shape : shapes)
 		{
-			auto shape = shapes[i];
-			auto sf_shape = sf_shapes[i];
-
 			// if shape is hitting edge, reverse vx_ and vy_
-			auto x = sf_shape->getPosition().x;
-			auto y = sf_shape->getPosition().y;
+			auto x = shape->getShape()->getPosition().x;
+			auto y = shape->getShape()->getPosition().y;
 			if (shape->type_ == "Circle")
 			{
 				if (x + shape->getProperties()[0] >= static_cast<float>(win_width))
-				{
 					shape->vx_ *= -1;
-				}
 				if (x - shape->getProperties()[0] <= 0)
-				{
 					shape->vx_ *= -1;
-				}
 				if (y + shape->getProperties()[0] >= static_cast<float>(win_height))
-				{
 					shape->vy_ *= -1;
-				}
 				if (y - shape->getProperties()[0] <= 0)
-				{
 					shape->vy_ *= -1;
-				}
 			}
 			else
 			{
 				if (x + (shape->getProperties()[0] / 2) >= static_cast<float>(win_width))
-				{
 					shape->vx_ *= -1;
-				}
 				if (x - (shape->getProperties()[0] / 2) <= 0)
-				{
 					shape->vx_ *= -1;
-				}
 				if (y + (shape->getProperties()[1] / 2) >= static_cast<float>(win_height))
-				{
 					shape->vy_ *= -1;
-				}
 				if (y - (shape->getProperties()[1] / 2) <= 0)
-				{
 					shape->vy_ *= -1;
-				}
 			}
 
-			sf_shape->move(shape->vx_, shape->vy_);
+			shape->getShape()->move(shape->vx_, shape->vy_);
 		}
 
 		// ImGui UI Start
-		ImGui::Begin("Window title");
+		ImGui::Begin("Bouncing Shapes");
 		ImGui::Text("Window text!");
 		ImGui::End();
 		// ImGui UI End
 
 		window.clear();
 
-		for (const auto& shape : sf_shapes)
+		for (const auto& shape : shapes)
 		{
-			window.draw(*shape);
+			window.draw(*(shape->getShape()));
 		}
 		ImGui::SFML::Render(window);
 		window.display();
