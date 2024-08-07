@@ -13,43 +13,26 @@ namespace Shape
 	class Shape
 	{
 	 public:
-		std::string type_;
-		std::string name_;
+	 	std::string type_;
 		std::shared_ptr<sf::Text> text_;
-		float x_;
-		float y_;
 		float vx_;
 		float vy_;
-		int R_;
-		int G_;
-		int B_;
 		bool draw_;
 
 		Shape() = default;
 
-		Shape(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, bool draw)
+		Shape(std::string type, std::shared_ptr<sf::Text> text, float vx, float vy, bool draw)
 		: type_{type}
-		, name_{name}
-		, x_{x}
-		, y_{y}
+		, text_{text}
 		, vx_{vx}
 		, vy_{vy}
-		, R_{R}
-		, G_{G}
-		, B_{B}
 		, draw_{draw}
 		{}
 
 		Shape(const Shape& other)
-		: type_{other.type_}
-		, name_{other.name_}
-		, x_{other.x_}
-		, y_{other.y_}
+		: text_{other.text_}
 		, vx_{other.vx_}
 		, vy_{other.vy_}
-		, R_{other.R_}
-		, G_{other.G_}
-		, B_{other.B_}
 		, draw_{other.draw_}
 		{}
 
@@ -61,23 +44,14 @@ namespace Shape
 	class Circle : public Shape
 	{
 	 public:
-		float radius_;
 		std::shared_ptr<sf::CircleShape> sf_;
 
-		Circle(std::string type,
-		       std::string name,
-		       float x,
-		       float y,
+		Circle(std::shared_ptr<sf::Text> text,
 		       float vx,
 		       float vy,
-		       int R,
-		       int G,
-		       int B,
-		       float radius,
 		       std::shared_ptr<sf::CircleShape>& sf,
 		       bool draw)
-		: Shape(type, name, x, y, vx, vy, R, G, B, draw)
-		, radius_{radius}
+		: Shape(std::string("Circle"), text, vx, vy, draw)
 		, sf_{sf}
 		{}
 
@@ -95,26 +69,14 @@ namespace Shape
 	class Rectangle : public Shape
 	{
 	 public:
-		float width_;
-		float height_;
 		std::shared_ptr<sf::RectangleShape> sf_;
 
-		Rectangle(std::string type,
-		          std::string name,
-		          float x,
-		          float y,
+		Rectangle(std::shared_ptr<sf::Text> text,
 		          float vx,
 		          float vy,
-		          int R,
-		          int G,
-		          int B,
-		          float width,
-		          float height,
 		          std::shared_ptr<sf::RectangleShape>& sf,
 		          bool draw)
-		: Shape(type, name, x, y, vx, vy, R, G, B, draw)
-		, width_{width}
-		, height_{height}
+		: Shape(std::string("Rectangle"), text, vx, vy, draw)
 		, sf_{sf}
 		{}
 
@@ -172,25 +134,24 @@ int main()
 			sfcircle->setPosition(x, y);
 			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
 			sfcircle->setOrigin(radius, radius);
-			// make circle class
-			auto circle = std::make_shared<
-			    Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius, sfcircle, true);
 
 			// create text for circle
 			auto text = std::make_shared<sf::Text>();
 			text->setFont(font); // Set the font
-			text->setString(circle->name_); // Set the text
+			text->setString(name); // Set the text
 			text->setCharacterSize(18); // Set the character size
 			text->setFillColor(sf::Color::White); // Set the text color
 			// Center the text on the shape
 			sf::FloatRect textRect = text->getLocalBounds();
 			text->setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-			text->setPosition(circle->x_, circle->y_);
-			// add text to circle class
-			circle->text_ = text;
+			text->setPosition(x, y);
 
-			shapes.insert(std::make_pair(circle->name_, circle));
-			names.push_back(circle->name_);
+			// make circle class
+			auto circle = std::make_shared<
+			    Shape::Circle>(text, vx, vy, sfcircle, true);
+
+			shapes.insert(std::make_pair(name, circle));
+			names.push_back(name);
 		}
 		else if (word == "Rectangle")
 		{
@@ -202,39 +163,22 @@ int main()
 			    sf::Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
 			sfrectangle->setOrigin(w / 2, h / 2);
 
-			// make rectangle class
-			auto rectangle = std::make_shared<Shape::Rectangle>(std::string("Rectangle"),
-			                                                    std::string(name),
-			                                                    x,
-			                                                    y,
-			                                                    vx,
-			                                                    vy,
-			                                                    r,
-			                                                    g,
-			                                                    b,
-			                                                    w,
-			                                                    h,
-			                                                    sfrectangle,
-			                                                    true);
-
-			// add sfrectangle to rectangle class
-			rectangle->sf_ = sfrectangle;
-
 			// create text for circle
 			auto text = std::make_shared<sf::Text>();
 			text->setFont(font); // Set the font
-			text->setString(rectangle->name_); // Set the text
+			text->setString(name); // Set the text
 			text->setCharacterSize(18); // Set the character size
 			text->setFillColor(sf::Color::White); // Set the text color
 			// Center the text on the shape
 			sf::FloatRect textRect = text->getLocalBounds();
 			text->setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-			text->setPosition(rectangle->x_, rectangle->y_);
-			// add text to circle class
-			rectangle->text_ = text;
+			text->setPosition(x, y);
 
-			shapes.insert(std::make_pair(rectangle->name_, rectangle));
-			names.push_back(rectangle->name_);
+			// make rectangle class
+			auto rectangle = std::make_shared<Shape::Rectangle>(text, vx, vy, sfrectangle, true);
+
+			shapes.insert(std::make_pair(name, rectangle));
+			names.push_back(name);
 		}
 	}
 
@@ -256,12 +200,8 @@ int main()
 	int current_item = 0;
 
 	// shape colour
-	// Initial color (RGB)
 	sf::Color shapeColor = sf::Color::Green;
 	float color[3] = {shapeColor.r / 255.0f, shapeColor.g / 255.0f, shapeColor.b / 255.0f};
-
-	// shape scale
-	float scale = 1.0f;
 
 	window.setFramerateLimit(60);
 	sf::Clock deltaClock;
@@ -277,11 +217,7 @@ int main()
 		ImGui::SFML::Update(window, deltaClock.restart());
 
 		ImGui::Begin("Bouncing Shapes!");
-		if (ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size())))
-		{
-			// Item selection changed
-			printf("Selected: %s\n", names_cstr[static_cast<std::size_t>(current_item)]);
-		}
+		ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size()));
 
 		bool toDraw = true;
 		auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
@@ -306,6 +242,14 @@ int main()
 			}
 		}
 
+		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+		if (it != shapes.end()) 
+		{
+			color[0] = static_cast<float>(it->second->getShape()->getFillColor().r) / 255.0f;
+			color[1] = static_cast<float>(it->second->getShape()->getFillColor().g) / 255.0f;
+			color[2] = static_cast<float>(it->second->getShape()->getFillColor().b) / 255.0f;
+		}
+
 		if (ImGui::ColorEdit3("Shape Color", color))
 		{
 			// Update the shape color based on the selected color
@@ -317,6 +261,14 @@ int main()
 			{
 				it->second->getShape()->setFillColor(shapeColor);
 			}
+		}
+
+		// shape scale
+		float scale = 1.0f;
+		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)])); 
+		if (it != shapes.end()) 
+		{
+			scale = it->second->getShape()->getScale().x;
 		}
 
 		if (ImGui::SliderFloat("Scale", &scale, 0.0f, 3.0f))
@@ -339,7 +291,6 @@ int main()
 
 		if (ImGui::SliderFloat2("2D Vector", velocity, -15.0f, 15.0f))
 		{
-			// Values were changed
 			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
 			if (it != shapes.end())
 			{
@@ -357,24 +308,16 @@ int main()
 			auto y = shape.second->getShape()->getPosition().y;
 			if (shape.second->type_ == "Circle")
 			{
-				if (x + shape.second->getProperties()[0] >= static_cast<float>(win_width))
+				if ((x + shape.second->getProperties()[0] >= static_cast<float>(win_width)) or (x - shape.second->getProperties()[0] <= 0))
 					shape.second->vx_ *= -1;
-				if (x - shape.second->getProperties()[0] <= 0)
-					shape.second->vx_ *= -1;
-				if (y + shape.second->getProperties()[0] >= static_cast<float>(win_height))
-					shape.second->vy_ *= -1;
-				if (y - shape.second->getProperties()[0] <= 0)
+				if ((y + shape.second->getProperties()[0] >= static_cast<float>(win_height)) or (y - shape.second->getProperties()[0] <= 0))
 					shape.second->vy_ *= -1;
 			}
 			else
 			{
-				if (x + (shape.second->getProperties()[0] / 2) >= static_cast<float>(win_width))
+				if ((x + (shape.second->getProperties()[0] / 2) >= static_cast<float>(win_width)) or (x - (shape.second->getProperties()[0] / 2) <= 0))
 					shape.second->vx_ *= -1;
-				if (x - (shape.second->getProperties()[0] / 2) <= 0)
-					shape.second->vx_ *= -1;
-				if (y + (shape.second->getProperties()[1] / 2) >= static_cast<float>(win_height))
-					shape.second->vy_ *= -1;
-				if (y - (shape.second->getProperties()[1] / 2) <= 0)
+				if ((y + (shape.second->getProperties()[1] / 2) >= static_cast<float>(win_height)) or (y - (shape.second->getProperties()[1] / 2) <= 0))
 					shape.second->vy_ *= -1;
 			}
 
