@@ -275,7 +275,7 @@ int main()
 				window.close();
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
-		// ImGui UI Start
+
 		ImGui::Begin("Bouncing Shapes!");
 		if (ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size())))
 		{
@@ -349,7 +349,6 @@ int main()
 		}
 
 		ImGui::End();
-		// ImGui UI End
 
 		for (const auto& shape : shapes)
 		{
