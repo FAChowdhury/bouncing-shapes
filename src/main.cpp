@@ -129,7 +129,8 @@ int main()
 	float radius;
 	float w, h;
 
-	auto shapes = std::vector<std::shared_ptr<Shape::Shape>>{}; // store the shapes from configuration
+	auto names = std::vector<std::string>{};
+	auto shapes = std::map<std::string, std::shared_ptr<Shape::Shape>>{};
 	while (fin >> word)
 	{
 		if (word == "Window")
@@ -150,7 +151,8 @@ int main()
 			                                 static_cast<uint8_t>(circle->B_)));
 			sfcircle->setOrigin(radius, radius);
 			circle->sf_ = sfcircle;
-			shapes.push_back(circle);
+			shapes.insert(std::make_pair(circle->name_, circle));
+			names.push_back(circle->name_);
 		}
 		else if (word == "Rectangle")
 		{
@@ -166,7 +168,8 @@ int main()
 			                                    static_cast<uint8_t>(rectangle->B_)));
 			sfrectangle->setOrigin(width / 2, height / 2);
 			rectangle->sf_ = sfrectangle;
-			shapes.push_back(rectangle);
+			shapes.insert(std::make_pair(rectangle->name_, rectangle));
+			names.push_back(rectangle->name_);
 		}
 	}
 
@@ -177,6 +180,20 @@ int main()
 		std::cerr << "Failed to initialize ImGui-SFML" << std::endl;
 		return -1;
 	}
+
+	// Selecting Shape
+	std::vector<const char*> names_cstr;
+	names_cstr.reserve(names.size());
+	for (const auto& name : names)
+	{
+		names_cstr.push_back(name.c_str());
+	}
+	int current_item = 0;
+
+	// shape colour
+	// Initial color (RGB)
+	sf::Color shapeColor = sf::Color::Green;
+	float color[3] = {shapeColor.r / 255.0f, shapeColor.g / 255.0f, shapeColor.b / 255.0f};
 
 	window.setFramerateLimit(60);
 	sf::Clock deltaClock;
@@ -194,45 +211,65 @@ int main()
 		for (const auto& shape : shapes)
 		{
 			// if shape is hitting edge, reverse vx_ and vy_
-			auto x = shape->getShape()->getPosition().x;
-			auto y = shape->getShape()->getPosition().y;
-			if (shape->type_ == "Circle")
+			auto x = shape.second->getShape()->getPosition().x;
+			auto y = shape.second->getShape()->getPosition().y;
+			if (shape.second->type_ == "Circle")
 			{
-				if (x + shape->getProperties()[0] >= static_cast<float>(win_width))
-					shape->vx_ *= -1;
-				if (x - shape->getProperties()[0] <= 0)
-					shape->vx_ *= -1;
-				if (y + shape->getProperties()[0] >= static_cast<float>(win_height))
-					shape->vy_ *= -1;
-				if (y - shape->getProperties()[0] <= 0)
-					shape->vy_ *= -1;
+				if (x + shape.second->getProperties()[0] >= static_cast<float>(win_width))
+					shape.second->vx_ *= -1;
+				if (x - shape.second->getProperties()[0] <= 0)
+					shape.second->vx_ *= -1;
+				if (y + shape.second->getProperties()[0] >= static_cast<float>(win_height))
+					shape.second->vy_ *= -1;
+				if (y - shape.second->getProperties()[0] <= 0)
+					shape.second->vy_ *= -1;
 			}
 			else
 			{
-				if (x + (shape->getProperties()[0] / 2) >= static_cast<float>(win_width))
-					shape->vx_ *= -1;
-				if (x - (shape->getProperties()[0] / 2) <= 0)
-					shape->vx_ *= -1;
-				if (y + (shape->getProperties()[1] / 2) >= static_cast<float>(win_height))
-					shape->vy_ *= -1;
-				if (y - (shape->getProperties()[1] / 2) <= 0)
-					shape->vy_ *= -1;
+				if (x + (shape.second->getProperties()[0] / 2) >= static_cast<float>(win_width))
+					shape.second->vx_ *= -1;
+				if (x - (shape.second->getProperties()[0] / 2) <= 0)
+					shape.second->vx_ *= -1;
+				if (y + (shape.second->getProperties()[1] / 2) >= static_cast<float>(win_height))
+					shape.second->vy_ *= -1;
+				if (y - (shape.second->getProperties()[1] / 2) <= 0)
+					shape.second->vy_ *= -1;
 			}
 
-			shape->getShape()->move(shape->vx_, shape->vy_);
+			shape.second->getShape()->move(shape.second->vx_, shape.second->vy_);
+		}
+		// ImGui UI Start
+		ImGui::Begin("Bouncing Shapes!");
+		if (ImGui::Combo("Shapes", &current_item, names_cstr.data(), static_cast<int>(names_cstr.size())))
+		{
+			// Item selection changed
+			printf("Selected: %s\n", names_cstr[static_cast<std::size_t>(current_item)]);
 		}
 
-		// ImGui UI Start
-		ImGui::Begin("Bouncing Shapes");
-		ImGui::Text("Window text!");
+		if (ImGui::ColorEdit3("Shape Color", color))
+		{
+			// Update the shape color based on the selected color
+			shapeColor.r = static_cast<sf::Uint8>(color[0] * 255);
+			shapeColor.g = static_cast<sf::Uint8>(color[1] * 255);
+			shapeColor.b = static_cast<sf::Uint8>(color[2] * 255);
+			// shape.setFillColor(shapeColor);
+			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+			if (it != shapes.end())
+			{
+				it->second->getShape()->setFillColor(shapeColor);
+			}
+		}
 		ImGui::End();
 		// ImGui UI End
+
+		// update shapes start
+		// update shapes end
 
 		window.clear();
 
 		for (const auto& shape : shapes)
 		{
-			window.draw(*(shape->getShape()));
+			window.draw(*(shape.second->getShape()));
 		}
 		ImGui::SFML::Render(window);
 		window.display();

@@ -11,7 +11,7 @@ find_package(SFML 2.5.1 COMPONENTS graphics window system REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # Include ImGui files
-set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/imgui")
+set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/lib/imgui")
 set(IMGUI_SOURCES
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_draw.cpp
