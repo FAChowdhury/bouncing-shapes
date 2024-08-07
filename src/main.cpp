@@ -61,14 +61,25 @@ namespace Shape
 		float radius_;
 		std::shared_ptr<sf::CircleShape> sf_;
 
-		Circle(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, float radius)
+		Circle(std::string type,
+		       std::string name,
+		       float x,
+		       float y,
+		       float vx,
+		       float vy,
+		       int R,
+		       int G,
+		       int B,
+		       float radius,
+		       std::shared_ptr<sf::CircleShape> sf)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
 		, radius_{radius}
+		, sf_{sf}
 		{}
 
 		std::vector<float> getProperties() const override
 		{
-			return std::vector<float>{radius_};
+			return std::vector<float>{sf_->getRadius() * sf_->getScale().x};
 		}
 
 		std::shared_ptr<sf::Shape> getShape() override
@@ -94,15 +105,17 @@ namespace Shape
 		          int G,
 		          int B,
 		          float width,
-		          float height)
+		          float height,
+		          std::shared_ptr<sf::RectangleShape> sf)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
 		, width_{width}
 		, height_{height}
+		, sf_{sf}
 		{}
 
 		std::vector<float> getProperties() const override
 		{
-			return std::vector<float>{width_, height_};
+			return std::vector<float>{sf_->getScale().x * sf_->getSize().x, sf_->getScale().y * sf_->getSize().y};
 		}
 
 		std::shared_ptr<sf::Shape> getShape() override
@@ -149,19 +162,14 @@ int main()
 		else if (word == "Circle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> radius;
+
+			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
+			sfcircle->setPosition(x, y);
+			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
+			sfcircle->setOrigin(radius, radius);
 			// make circle class
 			auto circle =
-			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius);
-			auto radius = circle->getProperties()[0];
-			// make sfcircle
-			auto sfcircle = std::make_shared<sf::CircleShape>(radius);
-			sfcircle->setPosition(circle->x_, circle->y_);
-			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(circle->R_),
-			                                 static_cast<uint8_t>(circle->G_),
-			                                 static_cast<uint8_t>(circle->B_)));
-			sfcircle->setOrigin(radius, radius);
-			// add sfcircle to circle class
-			circle->sf_ = sfcircle;
+			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius, sfcircle);
 
 			// create text for circle
 			auto text = std::make_shared<sf::Text>();
@@ -182,18 +190,17 @@ int main()
 		else if (word == "Rectangle")
 		{
 			fin >> name >> x >> y >> vx >> vy >> r >> g >> b >> w >> h;
+
+			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(w, h));
+			sfrectangle->setPosition(x, y);
+			sfrectangle->setFillColor(
+			    sf::Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
+			sfrectangle->setOrigin(w / 2, h / 2);
+
 			// make rectangle class
-			auto rectangle =
-			    std::make_shared<Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h);
-			auto width = rectangle->getProperties()[0];
-			auto height = rectangle->getProperties()[1];
-			// make sfrectangle
-			auto sfrectangle = std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
-			sfrectangle->setPosition(rectangle->x_, rectangle->y_);
-			sfrectangle->setFillColor(sf::Color(static_cast<uint8_t>(rectangle->R_),
-			                                    static_cast<uint8_t>(rectangle->G_),
-			                                    static_cast<uint8_t>(rectangle->B_)));
-			sfrectangle->setOrigin(width / 2, height / 2);
+			auto rectangle = std::make_shared<
+			    Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h, sfrectangle);
+
 			// add sfrectangle to rectangle class
 			rectangle->sf_ = sfrectangle;
 
@@ -237,6 +244,9 @@ int main()
 	sf::Color shapeColor = sf::Color::Green;
 	float color[3] = {shapeColor.r / 255.0f, shapeColor.g / 255.0f, shapeColor.b / 255.0f};
 
+	// shape scale
+	float scale = 1.0f;
+
 	window.setFramerateLimit(60);
 	sf::Clock deltaClock;
 	while (window.isOpen())
@@ -263,11 +273,20 @@ int main()
 			shapeColor.r = static_cast<sf::Uint8>(color[0] * 255);
 			shapeColor.g = static_cast<sf::Uint8>(color[1] * 255);
 			shapeColor.b = static_cast<sf::Uint8>(color[2] * 255);
-			// shape.setFillColor(shapeColor);
 			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
 			if (it != shapes.end())
 			{
 				it->second->getShape()->setFillColor(shapeColor);
+			}
+		}
+
+		if (ImGui::SliderFloat("Scale", &scale, 0.01f, 3.0f))
+		{
+			// Update the circle radius based on the slider value
+			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+			if (it != shapes.end())
+			{
+				it->second->getShape()->setScale(scale, scale);
 			}
 		}
 		ImGui::End();
@@ -304,9 +323,6 @@ int main()
 			shape.second->getShape()->move(shape.second->vx_, shape.second->vy_);
 			shape.second->text_->move(shape.second->vx_, shape.second->vy_);
 		}
-
-		// update shapes start
-		// update shapes end
 
 		window.clear();
 
