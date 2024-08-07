@@ -71,7 +71,7 @@ namespace Shape
 		       int G,
 		       int B,
 		       float radius,
-		       std::shared_ptr<sf::CircleShape> sf)
+		       std::shared_ptr<sf::CircleShape>& sf)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
 		, radius_{radius}
 		, sf_{sf}
@@ -106,7 +106,7 @@ namespace Shape
 		          int B,
 		          float width,
 		          float height,
-		          std::shared_ptr<sf::RectangleShape> sf)
+		          std::shared_ptr<sf::RectangleShape>& sf)
 		: Shape(type, name, x, y, vx, vy, R, G, B)
 		, width_{width}
 		, height_{height}
@@ -280,7 +280,7 @@ int main()
 			}
 		}
 
-		if (ImGui::SliderFloat("Scale", &scale, 0.01f, 3.0f))
+		if (ImGui::SliderFloat("Scale", &scale, 0.0f, 3.0f))
 		{
 			// Update the circle radius based on the slider value
 			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
@@ -289,6 +289,26 @@ int main()
 				it->second->getShape()->setScale(scale, scale);
 			}
 		}
+
+		float velocity[2] = {0.5f, 0.5f};
+		auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+		if (it != shapes.end())
+		{
+			velocity[0] = it->second->vx_;
+			velocity[1] = it->second->vy_;
+		}
+
+		if (ImGui::SliderFloat2("2D Vector", velocity, -15.0f, 15.0f))
+		{
+			// Values were changed
+			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+			if (it != shapes.end())
+			{
+				it->second->vx_ = velocity[0];
+				it->second->vy_ = velocity[1];
+			}
+		}
+
 		ImGui::End();
 		// ImGui UI End
 
