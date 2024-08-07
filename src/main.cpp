@@ -23,10 +23,11 @@ namespace Shape
 		int R_;
 		int G_;
 		int B_;
+		bool draw_;
 
 		Shape() = default;
 
-		Shape(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B)
+		Shape(std::string type, std::string name, float x, float y, float vx, float vy, int R, int G, int B, bool draw)
 		: type_{type}
 		, name_{name}
 		, x_{x}
@@ -36,6 +37,7 @@ namespace Shape
 		, R_{R}
 		, G_{G}
 		, B_{B}
+		, draw_{draw}
 		{}
 
 		Shape(const Shape& other)
@@ -48,6 +50,7 @@ namespace Shape
 		, R_{other.R_}
 		, G_{other.G_}
 		, B_{other.B_}
+		, draw_{other.draw_}
 		{}
 
 		virtual std::vector<float> getProperties() const = 0;
@@ -71,8 +74,9 @@ namespace Shape
 		       int G,
 		       int B,
 		       float radius,
-		       std::shared_ptr<sf::CircleShape>& sf)
-		: Shape(type, name, x, y, vx, vy, R, G, B)
+		       std::shared_ptr<sf::CircleShape>& sf,
+		       bool draw)
+		: Shape(type, name, x, y, vx, vy, R, G, B, draw)
 		, radius_{radius}
 		, sf_{sf}
 		{}
@@ -106,8 +110,9 @@ namespace Shape
 		          int B,
 		          float width,
 		          float height,
-		          std::shared_ptr<sf::RectangleShape>& sf)
-		: Shape(type, name, x, y, vx, vy, R, G, B)
+		          std::shared_ptr<sf::RectangleShape>& sf,
+		          bool draw)
+		: Shape(type, name, x, y, vx, vy, R, G, B, draw)
 		, width_{width}
 		, height_{height}
 		, sf_{sf}
@@ -168,8 +173,8 @@ int main()
 			sfcircle->setFillColor(sf::Color(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b)));
 			sfcircle->setOrigin(radius, radius);
 			// make circle class
-			auto circle =
-			    std::make_shared<Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius, sfcircle);
+			auto circle = std::make_shared<
+			    Shape::Circle>(std::string("Circle"), std::string(name), x, y, vx, vy, r, g, b, radius, sfcircle, true);
 
 			// create text for circle
 			auto text = std::make_shared<sf::Text>();
@@ -198,8 +203,19 @@ int main()
 			sfrectangle->setOrigin(w / 2, h / 2);
 
 			// make rectangle class
-			auto rectangle = std::make_shared<
-			    Shape::Rectangle>(std::string("Rectangle"), std::string(name), x, y, vx, vy, r, g, b, w, h, sfrectangle);
+			auto rectangle = std::make_shared<Shape::Rectangle>(std::string("Rectangle"),
+			                                                    std::string(name),
+			                                                    x,
+			                                                    y,
+			                                                    vx,
+			                                                    vy,
+			                                                    r,
+			                                                    g,
+			                                                    b,
+			                                                    w,
+			                                                    h,
+			                                                    sfrectangle,
+			                                                    true);
 
 			// add sfrectangle to rectangle class
 			rectangle->sf_ = sfrectangle;
@@ -267,6 +283,29 @@ int main()
 			printf("Selected: %s\n", names_cstr[static_cast<std::size_t>(current_item)]);
 		}
 
+		bool toDraw = true;
+		auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+		if (it != shapes.end())
+		{
+			toDraw = it->second->draw_;
+		}
+
+		if (ImGui::Checkbox("Draw Shape", &toDraw))
+		{
+			auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+			if (it != shapes.end())
+			{
+				if (toDraw)
+				{
+					it->second->draw_ = true;
+				}
+				else
+				{
+					it->second->draw_ = false;
+				}
+			}
+		}
+
 		if (ImGui::ColorEdit3("Shape Color", color))
 		{
 			// Update the shape color based on the selected color
@@ -291,7 +330,7 @@ int main()
 		}
 
 		float velocity[2] = {0.5f, 0.5f};
-		auto it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
+		it = shapes.find(std::string(names_cstr[static_cast<std::size_t>(current_item)]));
 		if (it != shapes.end())
 		{
 			velocity[0] = it->second->vx_;
@@ -348,8 +387,11 @@ int main()
 
 		for (const auto& shape : shapes)
 		{
-			window.draw(*(shape.second->getShape()));
-			window.draw(*(shape.second->text_));
+			if (shape.second->draw_)
+			{
+				window.draw(*(shape.second->getShape()));
+				window.draw(*(shape.second->text_));
+			}
 		}
 		ImGui::SFML::Render(window);
 		window.display();
