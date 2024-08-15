@@ -1,11 +1,24 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 project(GAME)
 
-###############################################################################
+if (NOT WIN32)
+
+  # Set the C++ standard to C++11
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+
+  ###############################################################################
+
+  # Set the SFML paths explicitly
+  set(SFML_INCLUDE_DIR "/opt/homebrew/Cellar/sfml/2.6.1/include") # needed for MACOS 
+  # set(SFML_LIBRARY_DIR "/opt/homebrew/Cellar/sfml/2.6.1/lib")
+
+endif()
 
 # Find SFML
-find_package(SFML 2.5.1 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -23,8 +36,10 @@ set(IMGUI_SOURCES
 # Create a static library for ImGui
 add_library(imgui STATIC ${IMGUI_SOURCES})
 
+# Ensure ImGui includes SFML headers
+target_include_directories(imgui PRIVATE ${SFML_INCLUDE_DIR})
+
 # Apply global compiler flags for the rest of the project
-# -Wold-style-cast disabled due to errors occuring in ImGui
 add_compile_options(
   -Wall
   -Wextra
@@ -41,10 +56,17 @@ add_compile_options(
   -Woverloaded-virtual
   -Wdeprecated-copy-dtor
   # -Wold-style-cast
-  -Wzero-as-null-pointer-constant
-  -Wsuggest-override
+  #-Wzero-as-null-pointer-constant
+  #-Wsuggest-override
   -fstack-protector-strong
 )
+
+if (WIN32)
+  add_compile_options(
+    -Wzero-as-null-pointer-constant
+    -Wsuggest-override
+  )
+endif()
 
 # Add your source files
 set(SOURCES src/main.cpp)
@@ -52,7 +74,13 @@ set(SOURCES src/main.cpp)
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Link the ImGui and ImGui-SFML libraries to your executable
+# Include the SFML directories for the project executable
+target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCLUDE_DIR})
+
+# Link the SFML library directories for the project executable
+# target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_LIBRARY_DIR})
+
+# Link the ImGui and SFML libraries to your executable
 target_link_libraries(${PROJECT_NAME} 
     imgui
     sfml-graphics
@@ -61,9 +89,5 @@ target_link_libraries(${PROJECT_NAME}
     OpenGL::GL
 )
 
-# Set SFML include directories
-target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCLUDE_DIR})
-
-# Set ImGui include directories
+# Set ImGui include directories for the project executable
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_DIR})
-
